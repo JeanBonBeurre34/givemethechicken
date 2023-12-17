@@ -13,47 +13,71 @@ logging.basicConfig(level=logging.INFO,
 class FakeFileSystem:
     def __init__(self):
         self.files = {"root": {}}
-        self.current_dir = "root"
+        self.current_path = ["root"]
 
     def ls(self, show_all=False):
+        current_dir = self.files
+        for dir in self.current_path:
+            current_dir = current_dir[dir]
+
         items = []
-        for item in self.files[self.current_dir].keys():
+        for item in current_dir.keys():
             if item.startswith('.') and not show_all:
                 continue
-            if isinstance(self.files[self.current_dir][item], dict):
+            if isinstance(current_dir[item], dict):
                 items.append(item + "/")
             else:
                 items.append(item)
         return '\n'.join(items)
 
     def touch(self, filename):
-        self.files[self.current_dir][filename] = ''
+        current_dir = self.files
+        for dir in self.current_path:
+            current_dir = current_dir[dir]
+        current_dir[filename] = ''
 
     def echo(self, filename, content):
-        if filename in self.files[self.current_dir]:
-            self.files[self.current_dir][filename] = content
+        current_dir = self.files
+        for dir in self.current_path:
+            current_dir = current_dir[dir]
+        if filename in current_dir:
+            current_dir[filename] = content
             return f"Content added to {filename}"
         return "File not found"
 
     def cat(self, filename):
-        if filename in self.files[self.current_dir]:
-            return self.files[self.current_dir][filename]
+        current_dir = self.files
+        for dir in self.current_path:
+            current_dir = current_dir[dir]
+        if filename in current_dir:
+            return current_dir[filename]
         return "File not found"
 
     def mkdir(self, dirname):
-        if dirname not in self.files[self.current_dir]:
-            self.files[self.current_dir][dirname] = {}
+        current_dir = self.files
+        for dir in self.current_path:
+            current_dir = current_dir[dir]
+        if dirname not in current_dir:
+            current_dir[dirname] = {}
             return f"Directory '{dirname}' created"
         return "Directory already exists"
 
     def cd(self, dirname):
-        if dirname in self.files[self.current_dir] and isinstance(self.files[self.current_dir][dirname], dict):
-            self.current_dir = dirname
+        if dirname == "..":
+            if len(self.current_path) > 1:
+                self.current_path.pop()
             return ""
-        return "Directory not found"
+        else:
+            current_dir = self.files
+            for dir in self.current_path:
+                current_dir = current_dir[dir]
+            if dirname in current_dir and isinstance(current_dir[dirname], dict):
+                self.current_path.append(dirname)
+                return ""
+            else:
+                return "Directory not found"
 
     def handle_command(self, command):
-        # Log the command
         logging.info(f"Command received: {command}")
         args = command.split()
         if not args:
@@ -100,7 +124,7 @@ def client_thread(conn, file_system):
 
 def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 9999))
+    server_socket.bind(('0.0.0.0', 9999))
     server_socket.listen(5)
 
     print("Server started. Waiting for connections...")
