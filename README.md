@@ -17,6 +17,8 @@ This project is a Python-based server that simulates a Unix file system. It allo
 * Git (for version control)
 
 ### Installation
+
+**Run in local**
 **Clone the repository**
 ```bash
 git clone https://github.com/JeanBonBeurre34/givemethechicken
@@ -27,10 +29,17 @@ git clone https://github.com/JeanBonBeurre34/givemethechicken
 python givemethechicken.py
 ```
 
+**Using Docker**
 **Build and running using docker**
 Build your docker container locally
 ```bash
 docker build -t givemethechicken:latest .
+```
+
+**Build the container from docker hub directly**
+You call pull the latest images from docker hub directly.
+```bash
+docker push reg0l1/givemethechicken:tagname
 ```
 
 **run the container locally**
@@ -45,3 +54,23 @@ Check to get the running container
 ```bash
 docker ps
 ```
+
+## Usage
+Connect to the server using a TCP client (like **telnet** or **netcat**):
+```bash
+telnet localhost 9999
+```
+
+```bash
+telnet localhost 9999
+```
+
+Once connected, you can execute supported commands:
+
+* ls: List files and directories.
+* touch <filename>: Create a new file.
+* mkdir <dirname>: Create a new directory.
+* cd <dirname>: Change directory.
+* echo "text" > <filename>: Append text to a file.
+* cat <filename>: Display file contents.
+* exit: Disconnect from the server.
