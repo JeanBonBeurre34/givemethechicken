@@ -1,5 +1,14 @@
 import socket
 import threading
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("server.log"),
+                        logging.StreamHandler()
+                    ])
 
 class FakeFileSystem:
     def __init__(self):
@@ -10,9 +19,9 @@ class FakeFileSystem:
         items = []
         for item in self.files[self.current_dir].keys():
             if item.startswith('.') and not show_all:
-                continue  # Skip hidden files/directories unless show_all is True
+                continue
             if isinstance(self.files[self.current_dir][item], dict):
-                items.append(item + "/")  # Append '/' to directory names
+                items.append(item + "/")
             else:
                 items.append(item)
         return '\n'.join(items)
@@ -44,12 +53,14 @@ class FakeFileSystem:
         return "Directory not found"
 
     def handle_command(self, command):
+        # Log the command
+        logging.info(f"Command received: {command}")
         args = command.split()
         if not args:
-            return None  # Return None for no command entered
+            return None
 
         if args[0] == "exit":
-            return "exit"  # Special command to signal exit
+            return "exit"
 
         if args[0] == "ls":
             show_all = len(args) > 1 and args[1] == "-la"
@@ -69,7 +80,7 @@ class FakeFileSystem:
             return "Invalid command"
 
 def client_thread(conn, file_system):
-    conn.sendall(b"/$ ")  # Send initial prompt
+    conn.sendall(b"/$ ")
 
     try:
         while True:
@@ -79,11 +90,11 @@ def client_thread(conn, file_system):
 
             command = data.decode().strip()
             response = file_system.handle_command(command)
-            if response == "exit":  # Check if exit command was given
+            if response == "exit":
                 break
-            if response is not None:  # Send a response only if there is one
+            if response is not None:
                 conn.sendall(response.encode() + b"\n")
-            conn.sendall(b"/$ ")  # Send prompt after each command
+            conn.sendall(b"/$ ")
     finally:
         conn.close()
 
@@ -99,7 +110,6 @@ def start_server():
             conn, addr = server_socket.accept()
             print(f"Connected with {addr}")
 
-            # Create a new thread for each client
             threading.Thread(target=client_thread, args=(conn, FakeFileSystem())).start()
     finally:
         server_socket.close()
