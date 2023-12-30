@@ -36,14 +36,15 @@ class FakeFileSystem:
             current_dir = current_dir[dir]
         current_dir[filename] = ''
 
-    def echo(self, filename, content):
+    def echo(self, text, filename):
         current_dir = self.files
         for dir in self.current_path:
             current_dir = current_dir[dir]
-        if filename in current_dir:
-            current_dir[filename] = content
-            return f"Content added to {filename}"
-        return "File not found"
+        if filename not in current_dir:
+            current_dir[filename] = text
+        else:
+            current_dir[filename] += text
+        return f"Text added to {filename}"
 
     def cat(self, filename):
         current_dir = self.files
@@ -79,6 +80,13 @@ class FakeFileSystem:
 
     def handle_command(self, command):
         logging.info(f"Command received: {command}")
+        if ">" in command:
+            parts = command.split(">")
+            if len(parts) == 2 and parts[0].strip().startswith("echo"):
+                text = parts[0][5:].strip().strip('"')
+                filename = parts[1].strip()
+                return self.echo(text, filename)
+
         args = command.split()
         if not args:
             return None
@@ -96,8 +104,6 @@ class FakeFileSystem:
             return self.mkdir(args[1])
         elif args[0] == "cd" and len(args) > 1:
             return self.cd(args[1])
-        elif args[0] == "echo" and len(args) > 2:
-            return self.echo(args[2], " ".join(args[1:-1]))
         elif args[0] == "cat" and len(args) > 1:
             return self.cat(args[1])
         else:
