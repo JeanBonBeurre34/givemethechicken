@@ -40,11 +40,8 @@ class FakeFileSystem:
         current_dir = self.files
         for dir in self.current_path:
             current_dir = current_dir[dir]
-        if filename not in current_dir:
-            current_dir[filename] = text
-        else:
-            current_dir[filename] += text
-        return f"Text added to {filename}"
+        current_dir[filename] = text
+        return f"Content written to {filename}"
 
     def cat(self, filename):
         current_dir = self.files
