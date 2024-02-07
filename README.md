@@ -45,7 +45,7 @@ docker push reg0l1/givemethechicken:tagname
 **run the container locally**
 Run the container locally and expose the port 9999.
 ```bash
-docker run -d -p 9999:9999 givemethechicken:latest
+docker run -d -p 22:22 givemethechicken:latest
 ```
 The container will start in daemon mode and expose the port 9999 to connect on.
 
@@ -58,11 +58,11 @@ docker ps
 ## Usage
 Connect to the server using a TCP client (like **telnet** or **netcat**):
 ```bash
-telnet localhost 9999
+telnet localhost 22
 ```
 
 ```bash
-telnet localhost 9999
+telnet localhost 22
 ```
 
 Once connected, you can execute supported commands:
