@@ -39,7 +39,7 @@ docker build -t givemethechicken:latest .
 **Build the container from docker hub directly**
 You call pull the latest images from docker hub directly.
 ```bash
-docker push reg0l1/givemethechicken:tagname
+docker pull reg0l1/givemethechicken:latest
 ```
 
 **run the container locally**
