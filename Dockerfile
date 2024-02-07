@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Make port 9999 available to the world outside this container
-EXPOSE 9999
+EXPOSE 22
 
 # Run server.py when the container launches
 CMD ["python", "givemethechicken.py"]
