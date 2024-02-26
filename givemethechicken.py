@@ -135,7 +135,7 @@ def start_server():
     try:
         while True:
             conn, addr = server_socket.accept()
-            print(f"Connected with {addr}")
+            logging.info(f"Connected with {addr}")
 
             threading.Thread(target=client_thread, args=(conn, FakeFileSystem())).start()
     finally:
@@ -143,3 +143,4 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+
